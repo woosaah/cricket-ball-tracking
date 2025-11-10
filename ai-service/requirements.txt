@@ -1,0 +1,23 @@
+# Flask API
+Flask==3.0.0
+Flask-CORS==4.0.0
+
+# Computer Vision
+opencv-python==4.8.1.78
+mediapipe==0.10.9
+ultralytics==8.1.0
+
+# Scientific Computing
+numpy==1.24.3
+scipy==1.11.4
+
+# Database
+psycopg2-binary==2.9.9
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+filterpy==1.4.5
+
+# Video Processing
+av==11.0.0

@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.env
+venv/
+env/
+models/*.pt
+*.mp4
+*.avi
+*.mov
+.DS_Store
+*.log

@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Backend API (Node.js + Express)
+  backend:
+    build: ./backend
+    container_name: cricket-coach-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:password@192.168.1.243:5432/cricket_coach
+      - JWT_SECRET=your-secret-key-change-this
+      - JWT_EXPIRES_IN=7d
+      - AI_SERVICE_URL=http://ai-service:5001
+      - UPLOAD_DIR=/app/uploads/videos
+      - MAX_FILE_SIZE_MB=500
+      - ALLOWED_ORIGINS=http://localhost:3001
+    volumes:
+      - ./backend:/app
+      - cricket-coach-uploads:/app/uploads
+    networks:
+      - cricket-coach-network
+    restart: unless-stopped
+
+  # AI Service (Python + Flask + OpenCV + YOLOv8 + MediaPipe)
+  ai-service:
+    build: ./ai-service
+    container_name: cricket-coach-ai
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_PORT=5001
+      - DATABASE_URL=postgresql://postgres:password@192.168.1.243:5432/cricket_coach
+      - MODEL_PATH=/app/models
+      - BALL_MODEL=yolov8n.pt
+      - CONFIDENCE_THRESHOLD=0.5
+      - MAX_WORKERS=2
+    volumes:
+      - ./ai-service:/app
+      - cricket-coach-uploads:/app/uploads:ro  # Read-only access to videos
+      - cricket-coach-models:/app/models
+    networks:
+      - cricket-coach-network
+    restart: unless-stopped
+    # GPU support (uncomment if NVIDIA GPU available)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # Frontend (React + TypeScript)
+  # Note: In production, build and serve with Nginx
+  # For development, run: cd frontend && npm start
+  # frontend:
+  #   build: ./frontend
+  #   container_name: cricket-coach-frontend
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - REACT_APP_API_URL=http://localhost:3000
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   networks:
+  #     - cricket-coach-network
+  #   restart: unless-stopped
+
+networks:
+  cricket-coach-network:
+    driver: bridge
+
+volumes:
+  cricket-coach-uploads:
+    driver: local
+  cricket-coach-models:
+    driver: local
